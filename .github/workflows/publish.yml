@@ -40,7 +40,7 @@ jobs:
 
       - name: Clone content plugins
         run: |
-          git clone https://github.com/sanketika-labs/sunbird-content-plugins.git plugins -b release-5.2.1
+          git clone https://github.com/sanketika-labs/sunbird-content-plugins.git plugins -b fmps-1.0.0
 
       - name: Install global dependencies
         run: |
