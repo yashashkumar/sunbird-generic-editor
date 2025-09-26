@@ -1,4 +1,4 @@
-name: Publish Sunbird-generic-editor to GitHub Artifacts
+name: Publish Sunbird-generic-editor to blob
 
 on:
   push:
@@ -6,9 +6,12 @@ on:
       - '*'
 
 env:
-      NODE_VERSION: 10.24.1
-      version_number: ${{ github.head_ref }}
-      build_number: ${{ github.run_number }}
+  NODE_VERSION: 10.24.1
+  version_number: ${{ github.ref_name }}
+  build_number: ${{ github.run_number }}
+  CLOUD_PROVIDER: ${{ vars.CLOUD_PROVIDER }}
+  GCP_BUCKET: ${{ vars.GCP_BUCKET }}
+  AZURE_CONTAINER: ${{ vars.AZURE_CONTAINER }}
 
 jobs:
   publish:
@@ -60,7 +63,7 @@ jobs:
         run: |
           npm install gulp-gzip --save-dev
           npm run build-npm-pkg
-
+      
       - name: Upload to GitHub Artifacts
         uses: actions/upload-artifact@v3
         with:
