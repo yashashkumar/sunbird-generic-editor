@@ -1,17 +1,14 @@
-name: Publish Sunbird-generic-editor to blob
+name: Publish Sunbird-generic-editor to GitHub Artifacts
 
 on:
   push:
-    tags:
+    branches:
       - '*'
 
 env:
       NODE_VERSION: 10.24.1
-      version_number: ${{ github.ref_name }}
+      version_number: ${{ github.head_ref }}
       build_number: ${{ github.run_number }}
-      CLOUD_PROVIDER: ${{ vars.CLOUD_PROVIDER }}
-      GCP_BUCKET: ${{ vars.GCP_BUCKET }}
-      AZURE_CONTAINER: ${{ vars.AZURE_CONTAINER }}
 
 jobs:
   publish:
@@ -40,7 +37,7 @@ jobs:
 
       - name: Clone content plugins
         run: |
-          git clone https://github.com/sanketika-labs/sunbird-content-plugins.git plugins -b ${{ github.ref_name }}
+          git clone https://github.com/sanketika-labs/sunbird-content-plugins.git plugins -b release-5.2.1
 
       - name: Install global dependencies
         run: |
@@ -64,46 +61,10 @@ jobs:
           npm install gulp-gzip --save-dev
           npm run build-npm-pkg
 
-      - name: Setup Google Cloud SDK
-        if: env.CLOUD_PROVIDER == 'gcp'
-        uses: google-github-actions/setup-gcloud@v1
+      - name: Upload to GitHub Artifacts
+        uses: actions/upload-artifact@v3
         with:
-          install_components: 'gsutil'
-          
-      - name: Authenticate and Upload to Google Cloud Storage
-        if: env.CLOUD_PROVIDER == 'gcp'
-        run: |
-          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | base64 -d > /tmp/service-account-key.json
-          gcloud auth activate-service-account --key-file=/tmp/service-account-key.json
-          gsutil -m cp -r generic-editor/* gs://${{ env.GCP_BUCKET }}/generic-editor/
-          rm -f /tmp/service-account-key.json
-
-      - name: Upload to Azure Blob Storage
-        if: env.CLOUD_PROVIDER == 'azure'
-        uses: azure/CLI@v1
-        with:
-          azcliversion: latest
-          inlineScript: |
-            az storage blob upload-batch \
-              --account-name "${{ secrets.AZURE_STORAGE_ACCOUNT }}" \
-              --account-key "${{ secrets.AZURE_STORAGE_KEY }}" \
-              --destination "${{ vars.AZURE_CONTAINER }}/generic-editor" \
-              --source generic-editor \
-              --overwrite
-
-# Note: Publishing to AWS S3 is not tested.
-  
-      # - name: Configure AWS credentials
-      #   if: env.CLOUD_PROVIDER == 'aws'
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
-
-      # - name: Upload to Amazon S3
-      #   if: env.CLOUD_PROVIDER == 'aws'
-      #   env:
-      #     S3_BUCKET: ${{ vars.S3_BUCKET }}
-      #   run: |
-      #     aws s3 sync generic-editor s3://${{ env.S3_BUCKET }}/generic-editor/
+          name: generic-editor
+          path: generic-editor/
+          retention-days: 14
+          if-no-files-found: error
