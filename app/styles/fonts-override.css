@@ -2,7 +2,7 @@
     font-family: 'Times New Roman', Times, Arial, sans-serif !important;
     font-style: normal;
     font-weight: 400;
-    src: url(fonts/TimesNewRoman.woff2) format('woff2')
+    src: url("./fonts/TimesNewRoman.woff") format('woff2')
   }
   
 body {
