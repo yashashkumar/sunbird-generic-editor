@@ -3,6 +3,6 @@
   font-family: 'Times New Roman', Times, Arial, sans-serif !important;
   font-style: normal;
   font-weight: 400;
-  src: local('Times New Roman'), local('TimesNewRoman'), url(../styles/fonts/TimesNewRoman.woff) format('woff2');
+  src: url("../styles/fonts/TimesNewRoman.woff") format('woff2');
   unicode-range: U+0460-052F, U+20B4, U+2DE0-2DFF, U+A640-A69F;
 }
